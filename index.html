@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superstore Sales Project - Precision Profitability Diagnostic</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-blue: #38bdf8;
+      --accent-amber: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    .deck-container {
+      width: 100%;
+      max-width: 1020px;
+      aspect-ratio: 16 / 9;
+      min-height: 574px;
+      position: relative;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      padding: 48px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 16px;
+    }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--accent-blue);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge {
+      background: #334155;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      flex-grow: 1;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      flex-grow: 1;
+    }
+
+    .metric-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .metric-val {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 8px 0;
+      color: var(--text-main);
+    }
+
+    .metric-desc {
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+
+    .text-green { color: var(--accent-green) !important; }
+    .text-red { color: var(--accent-red) !important; }
+    .text-blue { color: var(--accent-blue) !important; }
+    .text-amber { color: var(--accent-amber) !important; }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .data-table th, .data-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+    }
+
+    .data-table th {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .list-item {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .list-item strong {
+      color: var(--text-main);
+    }
+
+    .cover-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .cover-slide h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #38bdf8, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cover-slide p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: #0b1120;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .btn {
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #334155;
+      border-color: var(--accent-blue);
+    }
+
+    .page-num {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+    
+    <!-- Slide 1: Cover -->
+    <div class="slide cover-slide active">
+      <span class="badge" style="margin-bottom: 16px;">Superstore Sales Dataset</span>
+      <h1>Profitability Diagnostics & Strategic Realignments</h1>
+      <p>Identifying regional margin leaks, scaling profit anchors, and transitioning from volume chasing to optimized net yield.</p>
+    </div>
+
+    <!-- Slide 2: Executive KPI Overview -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 class="slide-title">Portfolio Performance Baseline</h2>
+          <div class="slide-subtitle">Top-line growth masks underlying margin fractures</div>
+        </div>
+        <span class="badge">Executive Overview</span>
+      </div>
+      <div class="grid-3">
+        <div class="metric-card">
+          <span class="metric-title">Total Revenue</span>
+          <div class="metric-val">$1,924,337.88</div>
+          <p class="metric-desc">Latest monthly run rate at <strong class="text-blue">$355,368.80</strong> (+15.92% MoM revenue growth).</p>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Net Profit</span>
+          <div class="metric-val text-green">$224,077.61</div>
+          <p class="metric-desc">Overall operating profit delivered across 1,952 enterprise order transactions.</p>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title">Operating Margin</span>
+          <div class="metric-val text-blue">11.64%</div>
+          <p class="metric-desc">Baseline stability is preserved, but heavy margin polarization exists across regions & categories.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Regional Analysis -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 class="slide-title">Regional Distribution & The South Deficit</h2>
+          <div class="slide-subtitle">Three engines generating returns, one burning capital</div>
+        </div>
+        <span class="badge">Territory Diagnostics</span>
+      </div>
+      <div class="grid-2">
+        <div class="metric-card">
+          <span class="metric-title">Regional Performance Summary</span>
+          <table class="data-table">
+            <thead>
+              <tr><th>Region</th><th>Sales</th><th>Margin</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>East</td><td>$592,171.49</td><td class="text-green">14.40%</td><td>Engine</td></tr>
+              <tr><td>West</td><td>$526,776.57</td><td class="text-green">14.40%</td><td>Engine</td></tr>
+              <tr><td>Central</td><td>$448,284.70</td><td class="text-green">17.26%</td><td>High Yield</td></tr>
+              <tr><td>South</td><td>$357,105.12</td><td class="text-red">-4.04%</td><td>Value Leak</td></tr>
+              <tr><td>North</td><td>$0.00</td><td class="text-muted">0.00%</td><td>Inactive</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title text-red">South Root Cause Deficit Drivers</span>
+          <p class="metric-desc" style="margin-top: 8px;">The South generated a net loss of <strong class="text-red">-$14,424.05</strong> driven primarily by unchecked discounting and logistics absorption:</p>
+          <div style="margin-top: 12px;">
+            <div class="list-item"><strong>North Carolina:</strong> -$19,427.91 Net Deficit</div>
+            <div class="list-item"><strong>Alabama:</strong> -$2,418.06 Net Deficit</div>
+            <div class="list-item"><strong>Kentucky:</strong> -$1,842.51 Net Deficit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Product Portfolio Breakdown -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 class="slide-title">Product Margin Anchors vs. Leaks</h2>
+          <div class="slide-subtitle">High gross revenue does not guarantee high margin</div>
+        </div>
+        <span class="badge">Portfolio Analysis</span>
+      </div>
+      <div class="grid-2">
+        <div class="metric-card">
+          <span class="metric-title text-green">Core Margin Anchors (Scale)</span>
+          <div style="margin-top: 12px;">
+            <div class="list-item">
+              <strong>Office Supplies:</strong> $89,525.01 Profit (16.24% Margin)
+            </div>
+            <div class="list-item">
+              <strong>Binders & Accessories:</strong> $59,296.39 Profit (31.89% Margin)
+            </div>
+            <div class="list-item">
+              <strong>Fellowes PB500 Binding Machine:</strong> $69,013.48 Sales / $23,865.90 Profit (Top Single Product Performer)
+            </div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title text-red">Value-Destructive Lines (Freeze / Fix)</span>
+          <div style="margin-top: 12px;">
+            <div class="list-item">
+              <strong>Polycom ViewStation ISDN:</strong> -$27,621.25 Unit Loss on 7 transactions
+            </div>
+            <div class="list-item">
+              <strong>Tables Sub-Category:</strong> $193,764.58 Sales with -$7,240.07 Deficit (-3.74% Margin)
+            </div>
+            <div class="list-item">
+              <strong>Office Machines:</strong> $318,169.68 Sales delivering only $8,824.39 Profit (2.77% Margin)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Segment Yield Inversion -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 class="slide-title">Customer Segment Yield Inversion</h2>
+          <div class="slide-subtitle">Volume vs. yield mismatch between Corporate and Small Business</div>
+        </div>
+        <span class="badge">Segment Diagnostics</span>
+      </div>
+      <div class="grid-2">
+        <div class="metric-card">
+          <span class="metric-title">Segment Breakdown Table</span>
+          <table class="data-table">
+            <thead>
+              <tr><th>Segment</th><th>Sales</th><th>Profit</th><th>Margin</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Small Business</td><td>$400,293.94</td><td class="text-green">$65,304.91</td><td class="text-green">16.31%</td></tr>
+              <tr><td>Consumer</td><td>$401,778.37</td><td>$49,894.99</td><td>12.42%</td></tr>
+              <tr><td>Home Office</td><td>$464,481.04</td><td>$54,433.52</td><td>11.72%</td></tr>
+              <tr><td>Corporate</td><td>$657,784.53</td><td class="text-amber">$54,444.19</td><td class="text-amber">8.28%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title text-blue">Strategic Segment Implications</span>
+          <div style="margin-top: 12px;">
+            <div class="list-item">
+              <strong>Small Business Outperformance:</strong> Generates the highest absolute profit ($65.3k) and yield (16.31%) despite lower volume.
+            </div>
+            <div class="list-item">
+              <strong>Corporate Bulk Discount Drain:</strong> Represents the largest sales volume ($657.8k) but lowest margin yield (8.28%).
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Strategic Recommendations -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 class="slide-title">Executive Action Plan</h2>
+          <div class="slide-subtitle">Three decisive mandates for immediate execution</div>
+        </div>
+        <span class="badge">Action Mandates</span>
+      </div>
+      <div class="grid-3">
+        <div class="metric-card">
+          <span class="metric-title text-red">1. Eliminate Margin Leaks</span>
+          <p class="metric-desc" style="margin-top: 10px;">
+            Impose an immediate discounting freeze on chronic loss-leaders (Polycom ViewStation, Tables, Bookcases). Shift procurement strictly to minimum margin thresholds (&ge;15%).
+          </p>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title text-amber">2. Restructure South Region</span>
+          <p class="metric-desc" style="margin-top: 10px;">
+            Halt aggressive discounting in North Carolina, Alabama, and Kentucky. Re-align freight absorption policies and re-evaluate logistics routes to stop the -$14.4k drain.
+          </p>
+        </div>
+        <div class="metric-card">
+          <span class="metric-title text-green">3. Scale High-Yield Anchors</span>
+          <p class="metric-desc" style="margin-top: 10px;">
+            Reallocate marketing spend to Small Business acquisition. Bundle high-margin accessories (Binders, Labels) with Office Machines to lift overall transaction yield.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Controls -->
+    <div class="controls">
+      <button class="btn" id="prevBtn" onclick="changeSlide(-1)">&#8592; Previous</button>
+      <span class="page-num" id="slideIndicator">Slide 1 of 6</span>
+      <button class="btn" id="nextBtn" onclick="changeSlide(1)">Next &#8594;</button>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.getElementById('slideIndicator');
+
+    function updateDeck() {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+      });
+      indicator.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+      document.getElementById('prevBtn').disabled = currentSlide === 0;
+      document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+    }
+
+    function changeSlide(direction) {
+      const target = currentSlide + direction;
+      if (target >= 0 && target < slides.length) {
+        currentSlide = target;
+        updateDeck();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+      if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    updateDeck();
+  </script>
+</body>
+</html>
